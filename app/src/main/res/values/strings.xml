@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Captura</string>
+    <string name="iniciar">Iniciar</string>
+    <string name="parar">Parar</string>
+    <string name="aguarde">Aguarde…</string>
+    <string name="habilite_gps">Por favor, habilite o GPS para prosseguir</string>
+    <string name="pacotes_lidos">Pacotes lidos: %d</string>
+</resources>
