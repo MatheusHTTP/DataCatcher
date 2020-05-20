@@ -361,9 +361,13 @@ public class Servico extends Service implements LocationListener, SensorEventLis
 	}
 
 	public static void defViagem(){
+		final int min = 1000;
+		final int max = 10000;
+		final int random = new Random().nextInt((max - min) + 1) + min;
+		String cod = "Local - " + random;
 		JSONObject postData = new JSONObject();
 		try {
-			postData.put("destino", "Localização");
+			postData.put("destino", cod);
 			idViagem = new NovaViagem().execute("http://10.0.2.2:5000/viagem", postData.toString()).get();
 		} catch (JSONException | ExecutionException | InterruptedException e) {
 			Log.e("Get ID", "Falha ao criar viagem");;
