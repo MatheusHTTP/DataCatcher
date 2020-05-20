@@ -41,8 +41,8 @@ import java.util.concurrent.ExecutionException;
 
 public class Servico extends Service implements LocationListener, SensorEventListener {
 	private static int idViagem;
-	ArrayList<Localizacao> listaGPS= new ArrayList<>();
-	ArrayList<Movimento> listaSensor= new ArrayList<>();
+	static ArrayList<Localizacao> listaGPS = new ArrayList<>();
+	static ArrayList<Movimento> listaSensor = new ArrayList<>();
 	public interface Callback {
 		void onEstadoAlterado(int estado);
 		void onNovoPacoteGPS(int pacotesLidosTotal);
@@ -68,7 +68,6 @@ public class Servico extends Service implements LocationListener, SensorEventLis
 	private LocationManager locationManager;
 	private SensorManager sensorManager;
 	private int pacotesLidosTotal, pacotesLidosGPS, pacotesLidosSensor;
-
 	private static final int TAMANHO_BUFFER_SEGUNDOS = 1000;
 	private static final int LEITURAS_GPS_POR_SEGUNDO = 1;
 	private static final int LEITURAS_SENSOR_POR_SEGUNDO = 10;
@@ -98,7 +97,8 @@ public class Servico extends Service implements LocationListener, SensorEventLis
 	public static void pararServico() {
 		if (servico != null && estado == ESTADO_INICIADO) {
 			estado = ESTADO_PARANDO;
-
+			new dataFormat().execute(listaGPS);
+			new dataFormat().execute(listaSensor);
 			servico.stopForeground(true);
 			servico.stopSelf();
 			servico = null;
@@ -214,10 +214,11 @@ public class Servico extends Service implements LocationListener, SensorEventLis
 		bufferGiroY = new float[QUANTIDADE_PACOTES_SENSOR];
 		bufferGiroZ = new float[QUANTIDADE_PACOTES_SENSOR];
 
+		listaGPS= new ArrayList<>();
+		listaSensor= new ArrayList<>();
 		pacotesLidosTotal = 0;
 		pacotesLidosGPS = 0;
 		pacotesLidosSensor = 0;
-
 		locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
 		if (locationManager != null)
 			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 / LEITURAS_GPS_POR_SEGUNDO, 0, this);
@@ -284,10 +285,9 @@ public class Servico extends Service implements LocationListener, SensorEventLis
 			bufferLat[pacotesLidosGPS] = location.getLatitude();
 			bufferLng[pacotesLidosGPS] = location.getLongitude();
 			bufferVel[pacotesLidosGPS] = location.getSpeedAccuracyMetersPerSecond();
-
 			listaGPS.add( new Localizacao (idViagem, timestampGPS[pacotesLidosGPS], bufferLat[pacotesLidosGPS], bufferLng[pacotesLidosGPS], bufferVel[pacotesLidosGPS]));
 			pacotesLidosGPS++;
-			if (pacotesLidosGPS >= 10) {
+			if (pacotesLidosGPS >= QUANTIDADE_PACOTES_GPS) {
 				// @@@ Envia os buffers para outra thread para enviar para o servidor.
 				// @@@ Enquanto a outra thread envia os dados para o servidor, criamos
 				// @@@ novos buffers para irmos preenchendo.
@@ -337,13 +337,14 @@ public class Servico extends Service implements LocationListener, SensorEventLis
 				bufferAccelY[pacotesLidosSensor] = event.values[1];
 				bufferAccelZ[pacotesLidosSensor] = event.values[2];
 			}
-			listaSensor.add(new Movimento(idViagem, timestampSensor[pacotesLidosSensor], bufferAccelX[pacotesLidosSensor], bufferGiroX[pacotesLidosSensor]));
+			listaSensor.add(new Movimento(idViagem, timestampSensor[pacotesLidosSensor], bufferAccelX[pacotesLidosSensor], bufferAccelY[pacotesLidosSensor],bufferAccelZ[pacotesLidosSensor], bufferGiroX[pacotesLidosSensor], bufferGiroY[pacotesLidosSensor], bufferGiroZ[pacotesLidosSensor]));
 			pacotesLidosSensor++;
-			if (pacotesLidosSensor >= 100) {
+			if (pacotesLidosSensor >= QUANTIDADE_PACOTES_SENSOR) {
 				// @@@ Envia os buffers para outra thread para enviar para o servidor.
 				// @@@ Enquanto a outra thread envia os dados para o servidor, criamos
 				// @@@ novos buffers para irmos preenchendo...
 				new dataFormat().execute(listaSensor);
+				listaSensor = new ArrayList<>();
 				pacotesLidosSensor = 0;
 				timestampSensor = new long[QUANTIDADE_PACOTES_SENSOR];
 				bufferAccelX = new float[QUANTIDADE_PACOTES_SENSOR];
