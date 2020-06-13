@@ -16,9 +16,9 @@ import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class NovaViagem extends AsyncTask<String, Void, Integer> {
+public class NovaViagem extends AsyncTask<String, Void, String> {
     @Override
-    protected Integer doInBackground(String... params) {
+    protected String doInBackground(String... params) {
         String JsonResponse = null;
         String JsonDATA = params[1];
         HttpURLConnection urlConnection = null;
@@ -58,7 +58,7 @@ public class NovaViagem extends AsyncTask<String, Void, Integer> {
             Log.i("Post Return", JsonResponse);
             int id = Integer.parseInt(json.getString("id"));
             //send to post execute
-            return id;
+            return JsonResponse;
 
 
         } catch (IOException | JSONException e) {

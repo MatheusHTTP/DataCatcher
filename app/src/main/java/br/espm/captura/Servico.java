@@ -40,7 +40,7 @@ import java.util.concurrent.ExecutionException;
 // https://developer.android.com/reference/android/location/LocationManager
 
 public class Servico extends Service implements LocationListener, SensorEventListener {
-	private static int idViagem;
+	private static int idViagem = 1;
 	static ArrayList<Localizacao> listaGPS = new ArrayList<>();
 	static ArrayList<Movimento> listaSensor = new ArrayList<>();
 	public interface Callback {
@@ -367,9 +367,10 @@ public class Servico extends Service implements LocationListener, SensorEventLis
 		String cod = "Local - " + random;
 		JSONObject postData = new JSONObject();
 		try {
+			postData.put("idViagem", idViagem);
 			postData.put("destino", cod);
-			idViagem = new NovaViagem().execute("http://10.0.2.2:5000/viagem", postData.toString()).get();
-		} catch (JSONException | ExecutionException | InterruptedException e) {
+			new NovaViagem().execute("http://10.0.2.2:5000/viagem", postData.toString());
+		} catch (JSONException e) {
 			Log.e("Get ID", "Falha ao criar viagem");;
 
 		}

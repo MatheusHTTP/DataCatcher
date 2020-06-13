@@ -15,6 +15,7 @@ public class dataFormat extends AsyncTask<ArrayList, Void, String> {
         int ctrl = 0;
         for(Object x: params[0]) {
             if (x instanceof Localizacao) {
+                ctrl = 1;
                 JSONObject postData = new JSONObject();
                 try {
 
@@ -24,7 +25,7 @@ public class dataFormat extends AsyncTask<ArrayList, Void, String> {
                     postData.put("longitude", ((Localizacao) x).longitude);
                     postData.put("velocidade", ((Localizacao) x).velocidade);
                     SendData.enviar("http://10.0.2.2:5000/geo", postData.toString());
-
+                    //Log.e("TESTE MENSAGEM", postData.toString());
                 } catch (JSONException e) {
                     Log.e("Send Post", "Erro ao adicionar itens");
                 }
@@ -41,6 +42,7 @@ public class dataFormat extends AsyncTask<ArrayList, Void, String> {
                     postData.put("gY", ((Movimento) x).gY);
                     postData.put("gZ", ((Movimento) x).gZ);
                     SendData.enviar("http://10.0.2.2:5000/sensor", postData.toString());
+                    //Log.e("TESTE MENSAGEM", postData.toString());
                 } catch (JSONException e) {
                     Log.e("Send Post", "Erro ao adicionar sensor");
                 }
